@@ -1,4 +1,6 @@
-# Boilermaker
+# Cars 3: Find your next Lightning McQueen
+
+Continue the Cars franchise by coming to us for your next car
 
 _Good things come in pairs_
 

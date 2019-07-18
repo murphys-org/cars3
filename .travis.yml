@@ -4,9 +4,8 @@ node_js:
 services:
   - postgresql # starts up postgres
 addons:
-  postgresql: '9.6' # highest available postgres version on Travis
-dist: trusty # uses trusty environment
-sudo: false # when on trusty, uses Docker containers for speed
+  postgresql: '10' # recent postgres version on Travis
+dist: xenial # uses xenial environment
 notifications:
   email:
     on_success: change # default: change (only when going from broken to fixed)
@@ -16,14 +15,16 @@ install:
 before_script:
   - psql -c 'create database "boilermaker-test";' -U postgres # remember to change this name if you change it elsewhere (e.g. package.json)
 script:
-  - npm test             # test the code
+  - npm test # test the code
   - npm run build-client # make the bundle
-
-before_deploy:
-  - rm -rf node_modules # omit from the tarball, since we skip cleanup
-deploy:
-  skip_cleanup: true # prevents travis from deleting the build
+before_deploy: # omit node_modules, since we set skip_cleanup below
+  - rm -rf node_modules
+deploy: # see README for details on these keys
+  # prevents travis from deleting the build
+  skip_cleanup: true
   provider: heroku
-  app: murphy-cars3 # see README
+  # app should be your heroku app name; see README
+  app: murphy-cars3
+  # the secure key indicates an encrypted value; see README
   api_key:
-    secure: AMwI6sZ4zYzgrx47CWz4Mfj6PsWB+XjT09l6ctnz8/5DufLtx3TsFS84hXebQ08CTZpNEn+zTqPrK5yvIu+CMFeSKYy5z/r+M3CsO0rCNPBGKwQHQkt1R9mEjTlOm3PcDTEkBY7imWjHd4s2j6KsM13KadryibCxqvmq2KJWxqEgYXHtkWLkTLQA0RDFE7rd1b2930jxtQQfluD4v2sHPWD0T5tbWhdlwKthhuafOZEqFBwQX1T5gf1eMG2hs9W8AqFg5DfSvl3Pt7NDfJSGBUEtx5qG15aF2VWhwJjMXvWRgH7249Aks55nMCrZXYWXBIUZXq8Q8tHx7uA0oxvwSLV6nF+tY3V7TnSMgwQmtctv4kRS0FGhf/jWTKOaAZMzJI3eLqWF2szDoJtHGqrkUVaiI7bstYAahu0IpCLsf2VjXtlHM1p8HvG36RBTmtfOAv1rupfU+d6GpVAedSkFDt+5V/NkYOah1wq6vRwr/4P+AjMbonMLMBEg+cDIhxczc4aw6CGUsEetlpnIZo+8JgL99nX1gcaRByZSfF1I3pgJBGBbV5qiX/bEMUPrJKXUHQeHtRFatv2HXrZWma5q35tuOOqm+XryXp8IOdpFB3ZST0l2IJcvfLI+WLTTJdo4eZ2s8ca6DZZ6NZxksuC/JCYOJjg+FR4O94W9EZjaIQI=
+    secure: hOnpgod/Q7jkPWmbfuT2lKl+Kkp6JoF3JGPaVFaXJ1OXtH9M5+3MAc8FDsLZy/jCBukNbxUH2c6e0wXZUruyN9XyzoTHaRKMDXd4dmmWK4lBylzwctBN1rZeVLAgExydvOQRiHj14sWB01cCs1oDRnuD37LP529dgjy/hAzT3X4t6KH6j53sHjdFAofMWjzuTdwce73DvtpuZjyCAL9t+MOI+KTvvi3zhuFhvjLVTCGvnEIZwo7qsP2Qz9ocBcozlRXywuoDRXg0qD3P8snppfZMxbv1iSSzPwMsxQzd+k8MDS67gh68A0ilDTJ11Cx/RBxsxOeK/2E/0E0NuQLTqXBi+ie6tt8XMMFeIdqBAlNPufH4mvdfQcoJt8gE97f63Wc3RDpVUznbzHhiNZbe2Omf4UElXVhth+qC+aRmTxJlZoYYlDuWkEqfZZjCavjOhbRbq8uq96GC6ja7HBaqkj/TO4uZvusVLWbBbzlx8rl3qQoxr//npvDS3twjwkcdGsBqR6ptwdnY6ZzvbjuHTARZ4nLEbsIofwkoLqpeQOuDEDYcDxenfLbEX4Ze8djeswbtGkzYEcDgdWBd5Fxs5IsUyq5qUPOVGYs4Z8bJrslNdmwCYLyzKQU98vtX5+PGYN4nlxWwUFVanrXEQQGX3P5oF5U+XXCbVHqjWDaXnsc=

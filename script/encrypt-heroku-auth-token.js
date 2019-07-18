@@ -8,6 +8,8 @@ const GitUrlParse = require('git-url-parse')
 const simpleGit = require('simple-git')()
 const YAML = require('yaml')
 
+const keyComments = require('./keyComments.json')
+
 const idempotenceMessage = `It appears that your token has been encrypted.
 To run this script again, delete the \`before_deploy\` and \`deploy\` keys
 from the .travis.yml file.`
@@ -51,7 +53,9 @@ const main = async () => {
       })
     })
   )
-  const herokuToken = await getOutputFromCommand('heroku', ['auth:token'])
+  const herokuTokenOut = await getOutputFromCommand('heroku', ['auth:token'])
+  const herokuTokenStr = herokuTokenOut.toString('utf-8')
+  const herokuToken = herokuTokenStr.slice(0, herokuTokenStr.length - 1)
   if (verbose) console.log('Received Heroku token', herokuToken.toString())
   const travisURL = `https://api.travis-ci.org/repos/${fullName}/key`
   const travisResponse = await axios.get(travisURL)
@@ -95,13 +99,6 @@ const main = async () => {
       api_key: {secure: keyBase64} //eslint-disable-line
     })
   )
-  const keyComments = {
-    api_key: ' the secure key indicates an encrypted value; see README',
-    app: ' app should be your heroku app name; see README',
-    before_deploy: ' omit node_modules, since we set skip_cleanup below',
-    deploy: ' see README for details on these keys',
-    skip_cleanup: ' prevents travis from deleting the build'
-  }
   doc.contents.items.filter(item => item.key in keyComments).forEach(item => {
     item.comment = keyComments[item.key]
     if (item.key === 'deploy') {
